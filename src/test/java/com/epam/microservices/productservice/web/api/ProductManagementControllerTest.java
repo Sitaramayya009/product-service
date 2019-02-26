@@ -54,7 +54,6 @@ public class ProductManagementControllerTest {
 		mockMvc = MockMvcBuilders
 				.standaloneSetup(productcontroller)
 				.build();
-
 	}
 
 	@Test
@@ -95,7 +94,6 @@ public class ProductManagementControllerTest {
 				productService.getProductById(20001L)).thenReturn(Optional.of(productList));
 		RequestBuilder requestBuilder = get(
 				"/products/{id}", 2L);
-
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 		if (result.getResponse().getContentAsString().equals("")) {
 			throw new ProductNotFoundException("Product Not found");
@@ -108,11 +106,9 @@ public class ProductManagementControllerTest {
 		Product product = retriveProductMockData();
 		Mockito.when(
 				productService.getProductById(20001L)).thenReturn(Optional.of(product));
-
 		mockMvc.perform(
 				delete("/products/{id}", 20001L))
 				.andExpect(status().isNoContent());
-
 		verify(productService, times(1)).deleteProduct(product.getId());
 	}
 
@@ -121,11 +117,9 @@ public class ProductManagementControllerTest {
 		Product product = retriveProductMockData();
 		Mockito.when(
 				productService.getProductById(20001L)).thenReturn(Optional.of(product));
-
 		mockMvc.perform(
 				delete("/products/{id}", 20001L))
 				.andExpect(status().isNoContent());
-
 		verify(productService, times(1)).deleteProduct(product.getId());
 	}
 
