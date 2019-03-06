@@ -66,7 +66,7 @@ public class ProductManagementControllerTest {
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		String expected = "[{\"id\":20001,\"name\":\"iPhone\",\"createdDate\":null,\"desc\":\"Mobile\",\"price\":65000.00}]";
+		String expected = "[{\"id\":20001,\"name\":\"iPhone\",\"createdDate\":null,\"desc\":\"Mobile\",\"price\":65000.00,\"category\":null}]";
 		System.out.println(result.getResponse().getContentAsString());
 
 		JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);
@@ -138,6 +138,6 @@ public class ProductManagementControllerTest {
 	}
 
 	private Product retriveProductMockData() {
-		return new Product(20001L,"iPhone",null,"Mobile",65000.00);
+		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null);
 	}
 }

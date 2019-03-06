@@ -51,7 +51,7 @@ public class ProductServiceTest {
 	}
 
 	private Product retriveProductMockData() {
-		return new Product(20001L,"iPhone",null,"Mobile",65000.00);
+		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null);
 	}
 
 }

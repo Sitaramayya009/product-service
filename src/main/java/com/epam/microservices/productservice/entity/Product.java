@@ -1,10 +1,12 @@
 package com.epam.microservices.productservice.entity;
 
-import java.math.BigDecimal;
+
 import java.util.Date;
 
 import javax.annotation.Generated;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 public class Product {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
 	private String name;
@@ -32,6 +35,8 @@ public class Product {
 	private String desc;
 
 	private Double price;
+
+	private String category;
 //	private int port;
 
 }
