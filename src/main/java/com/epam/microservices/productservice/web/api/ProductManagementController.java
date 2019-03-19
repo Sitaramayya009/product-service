@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.epam.microservices.productservice.dto.Review;
 import com.epam.microservices.productservice.exceptions.ProductNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,10 +43,10 @@ public class ProductManagementController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Product> findProdcut(@PathVariable("id") long id) {
 
-		Optional<Product> product =  productService.getProductById(id);
-		if (!product.isPresent())
+		Product product =  productService.getProductAndReviewsById(id);
+		if (null == product)
 			throw new ProductNotFoundException("Product not found for id " + id);
-		return new ResponseEntity<Product>(product.get(), HttpStatus.OK);
+		return new ResponseEntity<Product>(product, HttpStatus.OK);
 	}
 
 	@ApiOperation("Create Product")
@@ -89,5 +90,27 @@ public class ProductManagementController {
 			throw new ProductNotFoundException("Product not found for id " + id);
 		productService.deleteProduct(id);
 		return new ResponseEntity<Product>(HttpStatus.NO_CONTENT);
+	}
+
+
+	@PostMapping("/{prodId}/reviews")
+	@ApiOperation("Create Reviews for a Product")
+	public ResponseEntity<Product> saveProductReviews(@RequestBody List<Review> reviews,
+															@PathVariable Long prodId) {
+		return ResponseEntity.ok(productService.saveProductReviews(reviews, prodId));
+	}
+
+	@DeleteMapping("/{prodId}/reviews/{reviewId}")
+	@ApiOperation("Delete Review for a given Product")
+	public ResponseEntity<Boolean> deleteProductReviews(@PathVariable Long prodId, @PathVariable Long reviewId) {
+		return ResponseEntity.ok(productService.deleteProductReview(reviewId, prodId));
+	}
+
+	@PutMapping("/{prodId}/reviews/{reviewId}")
+	@ApiOperation("Update Review for a given Product")
+	public ResponseEntity<Product> updateProductReviews(@RequestBody Review review,
+															  @PathVariable Long reviewId, @PathVariable Long prodId) {
+		Product updateReview = productService.updateProductReview(review, reviewId, prodId);
+		return ResponseEntity.ok(updateReview);
 	}
 }

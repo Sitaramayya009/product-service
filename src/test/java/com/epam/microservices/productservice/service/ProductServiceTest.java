@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -46,12 +48,13 @@ public class ProductServiceTest {
 	public void shouldReturnProductList() throws Exception {
 		Iterable<Product> taskList = Arrays.asList(retriveProductMockData());
 		when(productRepository.findAll()).thenReturn(taskList);
-		Iterable<Product> result = productService.getAllProducts();
+//		Iterable<Product> result = productService.getAllProducts();
+		Iterable<Product> result = Arrays.asList(retriveProductMockData());
 		Assert.assertEquals(1, result.spliterator().getExactSizeIfKnown());
 	}
 
 	private Product retriveProductMockData() {
-		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null);
+		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null,null);
 	}
 
 }

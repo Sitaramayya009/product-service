@@ -66,7 +66,7 @@ public class ProductManagementControllerTest {
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		String expected = "[{\"id\":20001,\"name\":\"iPhone\",\"createdDate\":null,\"desc\":\"Mobile\",\"price\":65000.00,\"category\":null}]";
+		String expected = "[{\"id\":20001,\"name\":\"iPhone\",\"createdDate\":null,\"desc\":\"Mobile\",\"price\":65000.00,\"category\":null,\"prodReviews\":null}]";
 		System.out.println(result.getResponse().getContentAsString());
 
 		JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);
@@ -77,13 +77,13 @@ public class ProductManagementControllerTest {
 	public void shouldRetrieveProductById() throws Exception {
 		Product productList = retriveProductMockData();
 		Mockito.when(
-				productService.getProductById(20001L)).thenReturn(Optional.of(productList));
+				productService.getProductAndReviewsById(20001L)).thenReturn(productList);
 		mockMvc.perform(get("/products/{id}", 20001L))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
 				.andExpect(jsonPath("$.id", Matchers.is(20001)))
 				.andExpect(jsonPath("$.name", is("iPhone")));
-		verify(productService, times(1)).getProductById(20001L);
+		verify(productService, times(1)).getProductAndReviewsById(20001L);
 	}
 
 	//@Test(expected = ProductNotFoundException.class)
@@ -138,6 +138,6 @@ public class ProductManagementControllerTest {
 	}
 
 	private Product retriveProductMockData() {
-		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null);
+		return new Product(20001L,"iPhone",null,"Mobile",65000.00,null,null);
 	}
 }

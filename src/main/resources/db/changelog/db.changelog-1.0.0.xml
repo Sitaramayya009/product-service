@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+	<changeSet author="Sitaramayya" id="createTable-products-1.0">
+		<preConditions onFail="WARN">
+			<sqlCheck expectedResult="0">select count(*) from product
+			</sqlCheck>
+		</preConditions>
+		<createTable tableName="product"
+			catalogName="product-service">
+			<column autoIncrement="true" name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" />
+			</column>
+			<column name="name" type="varchar(50)" />
+			<column name="desc" type="varchar(255)" />
+			<column name="price" type="BIGINT" />
+			<column name="createdDate" type="datetime" />
+		</createTable>
+	</changeSet>
+
+	<changeSet author="Sitaramayya" id="createTable-product-1.2">
+		<addColumn schemaName="product-service" tableName="product">
+			<column name="category" type="varchar(50)" />
+		</addColumn>
+	</changeSet>
+
+</databaseChangeLog>
