@@ -4,12 +4,9 @@ package com.epam.microservices.productservice.entity;
 import java.util.Date;
 
 import javax.annotation.Generated;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import javax.persistence.*;
+import java.util.List;
+import com.epam.microservices.productservice.dto.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +34,8 @@ public class Product {
 	private Double price;
 
 	private String category;
-//	private int port;
+
+	@Transient
+	private List<Review> prodReviews;
 
 }
