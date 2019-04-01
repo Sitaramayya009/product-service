@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import com.epam.microservices.productservice.dto.Review;
 import com.epam.microservices.productservice.exceptions.ProductNotFoundException;
+import com.netflix.discovery.DiscoveryClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ public class ProductManagementController {
 	@Autowired
 	private ProductService productService;
 
+	@Autowired
+	private DiscoveryClient discoveryClient;
+
 	@ApiOperation("Retrive Products List")
 	@GetMapping
 	public ResponseEntity<Iterable<Product>> findAllProdcuts() {
@@ -41,7 +45,7 @@ public class ProductManagementController {
 
 	@ApiOperation("Retrive Product")
 	@GetMapping("/{id}")
-	public ResponseEntity<Product> findProdcut(@PathVariable("id") long id) {
+	public ResponseEntity<Product> findProduct(@PathVariable("id") long id) {
 
 		Product product =  productService.getProductAndReviewsById(id);
 		if (null == product)

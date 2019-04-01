@@ -1,12 +1,15 @@
 package com.epam.microservices.productservice.service;
 
 import com.epam.microservices.productservice.dto.Review;
+import com.epam.microservices.productservice.exceptions.ProductNotFoundException;
+
+import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-
+import com.netflix.appinfo.InstanceInfo;
 import com.epam.microservices.productservice.entity.Product;
 import com.epam.microservices.productservice.repository.ProductRepository;
 import org.springframework.web.client.RestTemplate;
@@ -19,11 +22,21 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepository;
 
-//	@Autowired
-	RestTemplate restTemplate;
+	private ProductReviewServiceProxy productReviewServiceProxy;
 
-	@Value("${product.review.url}")
-	private String review_service_uri;
+	private RestTemplate restTemplate;
+	private EurekaClient eurekaClient;
+
+	final String SERVICE_NAME = "REVIEW-SERVICE";
+
+	public ProductService(EurekaClient eurekaClient, ProductReviewServiceProxy productReviewServiceProxy) {
+		this.restTemplate = new RestTemplate();
+		this.eurekaClient = eurekaClient;
+		this.productReviewServiceProxy=productReviewServiceProxy;
+	}
+
+	@Value("${product.review.contextpath}")
+	private String contextpath;
 
 	public boolean isProductExist(Product product) {
 		return false;
@@ -47,20 +60,21 @@ public class ProductService {
 		return productRepository.findById(id);
 	}
 
-	public Product getProductAndReviewsById(Long id) {
-		Optional<Product> product = productRepository.findById(id);
+	public Product getProductAndReviewsById(Long productId) {
+		Optional<Product> product = productRepository.findById(productId);
 		if(product.isPresent()){
 			Product product1 = product.get();
-			product1.setProdReviews(retrieveProductReviewsData(product1.getId()));
+			product1.setProdReviews(productReviewServiceProxy.getByProductId(productId));
 			return product1;
 		}
 		return product.get();
 	}
 	public Iterable<Product> getAllProducts() {
 		Iterable<Product> products = productRepository.findAll();
-		for(Product product : products){
-			product.setProdReviews(retrieveProductReviewsData(product.getId()));
-		}
+		products.forEach(product -> product.setProdReviews(productReviewServiceProxy.getByProductId(product.getId())));
+		/*for(Product product : products){
+			product.setProdReviews(productReviewServiceProxy.getByProductId(product.getId()));
+		}*/
 		return products;
 	}
 
@@ -71,7 +85,7 @@ public class ProductService {
 		headers.set("SharedSecret", "BasicAuth");
 		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
 		restTemplate = new RestTemplate();
-		ResponseEntity<List<Review>> response = restTemplate.exchange(review_service_uri+"/{productId}/reviews", HttpMethod.GET, entity, new ParameterizedTypeReference<List<Review>>() {
+		ResponseEntity<List<Review>> response = restTemplate.exchange(getServiceUrl()+"/{productId}/reviews", HttpMethod.GET, entity, new ParameterizedTypeReference<List<Review>>() {
 		}, productId);
 		return response.getBody();
 	}
@@ -85,7 +99,7 @@ public class ProductService {
 			headers.set("SharedSecret", "BasicAuth");
 			HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
 
-			ResponseEntity<List<Review>> response = restTemplate.exchange(review_service_uri+"/{productId}/reviews", HttpMethod.POST, entity, new ParameterizedTypeReference<List<Review>>() {
+			ResponseEntity<List<Review>> response = restTemplate.exchange(getServiceUrl()+"/{productId}/reviews", HttpMethod.POST, entity, new ParameterizedTypeReference<List<Review>>() {
 			}, productId);
 			List<Review> prodReviews = response.getBody();
 			Product productWithReview = product.get();
@@ -103,7 +117,7 @@ public class ProductService {
 			params.put("productId", productId);
 			params.put("reviewId",reviewId);
 
-			restTemplate.delete(review_service_uri+"/{productId}/reviews/{reviewId}",params);
+			restTemplate.delete(getServiceUrl()+"/{productId}/reviews/{reviewId}",params);
 			return true;
 		}
 		return false;
@@ -118,7 +132,7 @@ public class ProductService {
 			headers.set("SharedSecret", "BasicAuth");
 			HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
 
-			ResponseEntity<Review> response = restTemplate.exchange(review_service_uri+"/{productId}/reviews/{reviewId}", HttpMethod.PUT, entity, new ParameterizedTypeReference<Review>() {
+			ResponseEntity<Review> response = restTemplate.exchange(getServiceUrl()+"/{productId}/reviews/{reviewId}", HttpMethod.PUT, entity, new ParameterizedTypeReference<Review>() {
 			}, productId);
 			Review prodReview = response.getBody();
 			List<Review> prodReviews = new ArrayList<>();
@@ -128,5 +142,10 @@ public class ProductService {
 			return productWithReview;
 		}
 		return product.get();
+	}
+
+	private String getServiceUrl() {
+		InstanceInfo instance = eurekaClient.getNextServerFromEureka(SERVICE_NAME, false);
+		return instance.getHomePageUrl()+contextpath;
 	}
 }
